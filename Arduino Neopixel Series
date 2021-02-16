@@ -1,0 +1,265 @@
+#include <Adafruit_NeoPixel.h>
+
+#define PIXEL_PIN 12    // Digital IO pin connected to the NeoPixels.
+#define PIXEL_COUNT 4   // number of LED's (change this accordingly)
+
+Adafruit_NeoPixel flora(PIXEL_COUNT, PIXEL_PIN, NEO_GRB + NEO_KHZ800);
+// Argument 1 = Number of pixels in NeoPixel strip
+// Argument 2 = Arduino pin number (most are valid)
+// Argument 3 = Pixel type flags, add together as needed:
+//   NEO_KHZ800  800 KHz bitstream (most NeoPixel products w/WS2812 LEDs)
+//   NEO_KHZ400  400 KHz (classic 'v1' (not v2) FLORA pixels, WS2811 drivers)
+//   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
+//   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
+//   NEO_RGBW    Pixels are wired for RGBW bitstream (NeoPixel RGBW products)
+/**********************************/
+int redOutOne; int greenOutOne; int blueOutOne;
+int redOutTwo; int greenOutTwo; int blueOutTwo;
+int redOutThree; int greenOutThree; int blueOutThree;
+int redOutFour; int greenOutFour; int blueOutFour;
+int intervalDelay = 2;
+long currentTime;
+/**********************************/
+void setup(){
+  pinMode(LED_BUILTIN, OUTPUT);
+  
+  flora.begin();
+  flora.setPixelColor(0, 0, 0, 0);flora.show();
+
+  Serial.begin(9600);
+  delay(500);
+  
+  //for(int i = 0; i < 255; i++){redOut++;flora.setPixelColor(0, redOut, greenOut, blueOut);flora.show();delay(intervalDelay);}//red on
+}
+/**********************************/
+
+void rainbowLoop(){
+  //ONE: start red on, blue on, red off, green on, blue off, red on, green off
+  //TWO: start red & blue on, red off, green on, blue off, red on, green off, blue on
+  //THREE: start blue on, green on, blue off, red on, green off, blue on, red off
+  //FOUR: start blue & green on, blue off, red on, green off, blue on, red off, green on
+    
+  flora.setPixelColor(0, 255, 0, 0);//redOutOne = 255; greenOutOne = 0; blueOutOne = 0;// ONE start w red on
+  flora.setPixelColor(1, 255, 0, 255);//redOutTwo = 255; greenOutTwo = 0; blueOutTwo = 255;//TWO start w redblue on
+  flora.setPixelColor(2, 0, 0, 255);//redOutThree = 0; greenOutThree = 0; blueOutThree = 255;//THREE start w blue on
+  flora.setPixelColor(3, 0, 255, 255);//redOutFour = 0; greenOutFour = 255; blueOutFour = 255;//FOUR start w bluegreen on
+  
+  flora.show();
+  
+  for(int i = 0; i < 256; i++){//ONE:blue++; TWO:red--;THREE:green++;FOUR:blue--;
+    flora.setPixelColor(0, 255, 0, i);//red+blue
+    flora.setPixelColor(1, 255-i, 0, 255);//red blue-red
+    flora.setPixelColor(2, 0, i, 255);//blue+green
+    flora.setPixelColor(3, 0, 255, 255-i);//blue green-blue
+    flora.show();
+    delay(intervalDelay);
+  }
+  for(int i = 0; i < 256; i++){//ONE:red--; TWO:green++;THREE:blue--;FOUR:red++;
+    flora.setPixelColor(0, 255-i, 0, 255);//red blue-red
+    flora.setPixelColor(1, 0, i, 255);//blue+green
+    flora.setPixelColor(2, 0, 255, 255-i);//blue green-blue
+    flora.setPixelColor(3, i, 255, 0);//green+red
+    flora.show();
+    delay(intervalDelay);
+  }
+  for(int i = 0; i < 256; i++){//ONE:green++; TWO:blue--;THREE:red++;FOUR:green--;
+    flora.setPixelColor(0, 0, i, 255);//blue+green
+    flora.setPixelColor(1, 0, 255, 255-i);//blue green-blue
+    flora.setPixelColor(2, i, 255, 0);//green+red
+    flora.setPixelColor(3, 255, 255-i, 0);//green red-green
+    flora.show();
+    delay(intervalDelay);
+  }
+  for(int i = 0; i < 256; i++){//ONE:blue--; TWO:red++;THREE:green--;FOUR:blue++;
+    flora.setPixelColor(0, 0, 255, 255-i);//blue green-blue
+    flora.setPixelColor(1, i, 255, 0);//green+red
+    flora.setPixelColor(2, 255, 255-i, 0);//green red-green
+    flora.setPixelColor(3, 255, 0, i);//red+blue
+    flora.show();
+    delay(intervalDelay);
+  }
+  for(int i = 0; i < 256; i++){//ONE:red++; TWO:green--;THREE:blue++;FOUR:red--;
+    flora.setPixelColor(0, i, 255, 0);//green+red
+    flora.setPixelColor(1, 255, 255-i, 0);//green red-green
+    flora.setPixelColor(2, 255, 0, i);//red+blue
+    flora.setPixelColor(3, 255-i, 0, 255);//red blue-red
+    flora.show();
+    delay(intervalDelay);
+  }
+  for(int i = 0; i < 256; i++){//ONE:green--; TWO:blue++;THREE:red--;FOUR:green++;
+    flora.setPixelColor(0, 255, 255-i, 0);//green red-green
+    flora.setPixelColor(1, 255, 0, i);//red+blue
+    flora.setPixelColor(2, 255-i, 0, 255);//red blue-red
+    flora.setPixelColor(3, 0, i, 255);//blue+green
+    flora.show();
+    delay(intervalDelay);
+  }
+}
+
+void rainbowLoopMono(){
+  //ONE: start red on, blue on, red off, green on, blue off, red on, green off
+  //TWO: start red & blue on, red off, green on, blue off, red on, green off, blue on
+  //THREE: start blue on, green on, blue off, red on, green off, blue on, red off
+  //FOUR: start blue & green on, blue off, red on, green off, blue on, red off, green on
+    
+  flora.setPixelColor(0, 255, 0, 0);//redOutOne = 255; greenOutOne = 0; blueOutOne = 0;// ONE start w red on
+  flora.setPixelColor(1, 255, 0, 0);//redOutOne = 255; greenOutOne = 0; blueOutOne = 0;// ONE start w red on
+  flora.setPixelColor(2, 255, 0, 0);//redOutOne = 255; greenOutOne = 0; blueOutOne = 0;// ONE start w red on
+  flora.setPixelColor(3, 255, 0, 0);//redOutOne = 255; greenOutOne = 0; blueOutOne = 0;// ONE start w red on
+  
+  flora.show();
+  
+  for(int i = 0; i < 256; i++){//ONE:blue++; TWO:red--;THREE:green++;FOUR:blue--;
+    flora.setPixelColor(0, 255, 0, i);//red+blue
+    flora.setPixelColor(1, 255, 0, i);//red+blue
+    flora.setPixelColor(2, 255, 0, i);//red+blue
+    flora.setPixelColor(3, 255, 0, i);//red+blue
+    flora.show();
+    delay(intervalDelay);
+  }
+  for(int i = 0; i < 256; i++){//ONE:red--; TWO:green++;THREE:blue--;FOUR:red++;
+    flora.setPixelColor(0, 255-i, 0, 255);//red blue-red
+    flora.setPixelColor(1, 255-i, 0, 255);//red blue-red
+    flora.setPixelColor(2, 255-i, 0, 255);//red blue-red
+    flora.setPixelColor(3, 255-i, 0, 255);//red blue-red
+    flora.show();
+    delay(intervalDelay);
+  }
+  for(int i = 0; i < 256; i++){//ONE:green++; TWO:blue--;THREE:red++;FOUR:green--;
+    flora.setPixelColor(0, 0, i, 255);//blue+green
+    flora.setPixelColor(1, 0, i, 255);//blue+green
+    flora.setPixelColor(2, 0, i, 255);//blue+green
+    flora.setPixelColor(3, 0, i, 255);//blue+green
+    flora.show();
+    delay(intervalDelay);
+  }
+  for(int i = 0; i < 256; i++){//ONE:blue--; TWO:red++;THREE:green--;FOUR:blue++;
+    flora.setPixelColor(0, 0, 255, 255-i);//blue green-blue
+    flora.setPixelColor(1, 0, 255, 255-i);//blue green-blue
+    flora.setPixelColor(2, 0, 255, 255-i);//blue green-blue
+    flora.setPixelColor(3, 0, 255, 255-i);//blue green-blue
+    flora.show();
+    delay(intervalDelay);
+  }
+  for(int i = 0; i < 256; i++){//ONE:red++; TWO:green--;THREE:blue++;FOUR:red--;
+    flora.setPixelColor(0, i, 255, 0);//green+red
+    flora.setPixelColor(1, i, 255, 0);//green+red
+    flora.setPixelColor(2, i, 255, 0);//green+red
+    flora.setPixelColor(3, i, 255, 0);//green+red
+    flora.show();
+    delay(intervalDelay);
+  }
+  for(int i = 0; i < 256; i++){//ONE:green--; TWO:blue++;THREE:red--;FOUR:green++;
+    flora.setPixelColor(0, 255, 255-i, 0);//green red-green
+    flora.setPixelColor(1, 255, 255-i, 0);//green red-green
+    flora.setPixelColor(2, 255, 255-i, 0);//green red-green
+    flora.setPixelColor(3, 255, 255-i, 0);//green red-green
+    flora.show();
+    delay(intervalDelay);
+  }
+}
+
+void redFlashing(){
+
+  flora.setPixelColor(0, 0, 0, 0);
+  flora.setPixelColor(1, 0, 0, 0);
+  flora.setPixelColor(2, 0, 0, 0);
+  flora.setPixelColor(3, 0, 0, 0);
+  
+  flora.show();
+  
+  for(int i = 0; i < 256; i++){
+    flora.setPixelColor(0, i, 0, 0);
+    flora.setPixelColor(1, i, 0, 0);
+    flora.setPixelColor(2, i, 0, 0);
+    flora.setPixelColor(3, i, 0, 0);
+    flora.show();
+    delay(intervalDelay);
+  }
+  for(int i = 0; i < 256; i++){
+    flora.setPixelColor(0, 255-i, 0, 0);
+    flora.setPixelColor(1, 255-i, 0, 0);
+    flora.setPixelColor(2, 255-i, 0, 0);
+    flora.setPixelColor(3, 255-i, 0, 0);
+    flora.show();
+    delay(intervalDelay);
+  }
+}
+
+void greenFlashing(){
+
+  flora.setPixelColor(0, 0, 0, 0);
+  flora.setPixelColor(1, 0, 0, 0);
+  flora.setPixelColor(2, 0, 0, 0);
+  flora.setPixelColor(3, 0, 0, 0);
+  
+  flora.show();
+  
+  for(int i = 0; i < 256; i++){
+    flora.setPixelColor(0, 0, i, 0);
+    flora.setPixelColor(1, 0, i, 0);
+    flora.setPixelColor(2, 0, i, 0);
+    flora.setPixelColor(3, 0, i, 0);
+    flora.show();
+    delay(intervalDelay);
+  }
+  for(int i = 0; i < 256; i++){
+    flora.setPixelColor(0, 0, 255 - i, 0);
+    flora.setPixelColor(1, 0, 255 - i, 0);
+    flora.setPixelColor(2, 0, 255 - i, 0);
+    flora.setPixelColor(3, 0, 255 - i, 0);
+    flora.show();
+    delay(intervalDelay);
+  }
+}
+
+void blueFlashing(){
+
+  flora.setPixelColor(0, 0, 0, 0);
+  flora.setPixelColor(1, 0, 0, 0);
+  flora.setPixelColor(2, 0, 0, 0);
+  flora.setPixelColor(3, 0, 0, 0);
+  
+  flora.show();
+  
+  for(int i = 0; i < 256; i++){
+    flora.setPixelColor(0, 0, 0, i);
+    flora.setPixelColor(1, 0, 0, i);
+    flora.setPixelColor(2, 0, 0, i);
+    flora.setPixelColor(3, 0, 0, i);
+    flora.show();
+    delay(intervalDelay);
+  }
+  for(int i = 0; i < 256; i++){
+    flora.setPixelColor(0, 0, 0, 255 - i);
+    flora.setPixelColor(1, 0, 0, 255 - i);
+    flora.setPixelColor(2, 0, 0, 255 - i);
+    flora.setPixelColor(3, 0, 0, 255 - i);
+    flora.show();
+    delay(intervalDelay);
+  }
+}
+
+void loop(){
+  //rainbowLoop();
+  //rainbowLoopMono();
+  //redFlashing();
+  //greenFlashing();
+  //blueFlashing();
+
+  currentTime = millis();
+  if(currentTime > 0 && currentTime < 5000){
+    rainbowLoop();
+  } else if(currentTime > 5000 && currentTime < 10000){
+    rainbowLoopMono();
+  } else if(currentTime > 10000 && currentTime < 15000){
+    redFlashing();
+  } else if(currentTime > 15000 && currentTime < 20000){
+    greenFlashing();
+  } else if(currentTime > 20000 && currentTime < 25000){
+    blueFlashing();
+  } else{
+    rainbowLoop();
+  }
+}
+/************************************/
